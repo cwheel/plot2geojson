@@ -1,4 +1,4 @@
-const meterToFeet = 3.28084;
+const meterToFeet = 3.28084
 
 const stationFromArgs = (args, ctx, plot) => {
     return {
@@ -6,7 +6,7 @@ const stationFromArgs = (args, ctx, plot) => {
             parseFloat(ctx.units === 'feet' ? args[1] / meterToFeet : args[1]),
             parseFloat(ctx.units === 'feet' ? args[0] / meterToFeet : args[0]),
             plot.utmZone,
-            'R', // UTM zone letter, this maybe needs to be dynamic?
+            'R' // UTM zone letter, this maybe needs to be dynamic?
         ),
         depth: parseFloat(args[2]),
 
@@ -19,7 +19,7 @@ const stationFromArgs = (args, ctx, plot) => {
         },
         penetration: parseFloat(args[10]),
         comment: args.length >= 11 ? args[12] : null,
-    };
-};
+    }
+}
 
-export { stationFromArgs };
+export { stationFromArgs }

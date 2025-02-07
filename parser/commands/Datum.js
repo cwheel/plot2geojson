@@ -1,13 +1,13 @@
-import UTM from 'utm-latlng';
+import UTM from 'utm-latlng'
 
 class Datum {
-    static command = 'O';
+    static command = 'O'
 
     parse(args) {
         // This is the only string Compass doesn't mark with quotes
-        const name = args.join(' ');
+        const name = args.join(' ')
 
-        let converter = new UTM();
+        let converter = new UTM()
 
         // No idea if this is a Compass default or something. If we for
         // some reason have lots of variety in our datum selection,
@@ -15,16 +15,16 @@ class Datum {
 
         // See https://www.npmjs.com/package/utm-latlng for supported datums
         if (name === 'North American 1927') {
-            converter = new UTM('Clarke 1866');
+            converter = new UTM('Clarke 1866')
         }
 
         return {
             datum: {
                 name,
                 converter,
-            }
+            },
         }
-    };
-};
+    }
+}
 
-export default Datum;
+export default Datum
