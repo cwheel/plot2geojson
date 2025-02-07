@@ -1,4 +1,4 @@
-const meterToFeet = 3.28084
+const meterToFeet = 3.28084;
 
 const stationFromArgs = (args, ctx, plot) => {
     return {
@@ -19,7 +19,7 @@ const stationFromArgs = (args, ctx, plot) => {
         },
         penetration: parseFloat(args[10]),
         comment: args.length >= 11 ? args[12] : null,
-    }
-}
+    };
+};
 
-export { stationFromArgs }
+export { stationFromArgs };

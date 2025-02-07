@@ -1,11 +1,11 @@
 class Name {
-    static command = 'S'
+    static command = 'S';
 
     parse(args) {
         return {
             name: args[0],
-        }
+        };
     }
 }
 
-export default Name
+export default Name;
