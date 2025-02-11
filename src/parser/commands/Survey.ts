@@ -1,7 +1,9 @@
+import { type Context, type Plot } from '../parser.js';
+
 class Survey {
     static command = 'N';
 
-    parse(args, ctx, plot) {
+    parse(args: string[], ctx: Context, plot: Plot) {
         const surveys = plot.surveys || [];
         surveys.push({
             name: args[0],

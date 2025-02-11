@@ -1,6 +1,24 @@
-const meterToFeet = 3.28084;
+type Position = {
+    northing: number;
+    easting: number;
+};
 
-const stationFromArgs = (args, ctx, plot) => {
+type Station = {
+    position: Position;
+    depth: number;
+    name: string;
+    tunnel: {
+        left: number;
+        right: number;
+        up: number;
+        down: number;
+    };
+    penetration: number;
+    comment: string | null;
+    stations: Station[];
+};
+
+const stationFromArgs = (args: string[]): Station => {
     return {
         position: {
             northing: parseFloat(args[0]),
@@ -18,7 +36,8 @@ const stationFromArgs = (args, ctx, plot) => {
         },
         penetration: parseFloat(args[10]),
         comment: args.length >= 11 ? args[12] : null,
+        stations: [],
     };
 };
 
-export { stationFromArgs };
+export { stationFromArgs, type Station, type Position };

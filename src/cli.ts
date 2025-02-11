@@ -4,18 +4,18 @@ import fs from 'fs/promises';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
-import { parse } from './plt2geojson/parser/parser.js';
-import geojsonFromPlot from './plt2geojson/geojson/geojson.js';
+import { parse } from './parser/parser.js';
+import geojsonFromPlot from './geojson/geojson.js';
 
 const argv = yargs(hideBin(process.argv))
-    .command('$0 <input>', 'Convert PLT to GeoJSON', (yargs) => {
-        yargs.positional('input', {
+    .command('$0 <input>', 'Convert PLT to GeoJSON')
+    .positional('input', {
             describe: 'Input Compass PLT file',
             type: 'string',
-        });
-    })
+            demandOption: true,
+        })
     .demandCommand(1)
-    .parse();
+    .parseSync();
 
 if (!argv.input.endsWith('.plt')) {
     console.error('Input file must be a PLT file');

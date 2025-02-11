@@ -1,7 +1,7 @@
 class UTMZone {
     static command = 'G';
 
-    parse(args) {
+    parse(args: string[]) {
         return {
             utmZone: parseInt(args[0], 10),
         };

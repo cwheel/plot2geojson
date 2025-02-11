@@ -1,9 +1,23 @@
+import { type Station, type Position } from '../parser/util/station.js';
+import { type Plot } from '../parser/parser.js';
 import { multiplyMatrices } from './util/matrix.js';
+import { metersToFeet } from './util/constants.js';
 
-const geojsonFromPlot = (plot) => {
-    let polygons = [];
+type Polygon = {
+    type: string;
+    coordinates: number[][][];
+    properties: {
+        name: string;
+        depth: number;
+        penetration: number;
+        comment: string;
+    };
+};
 
-    plot.stations.forEach((rootStation) => {
+const geojsonFromPlot = (plot: Plot) => {
+    let polygons: Polygon[] = [];
+
+    plot.stations.forEach((rootStation: Station) => {
         for (let i = 0; i < rootStation.stations.length; i++) {
             const station = rootStation.stations[i];
 
@@ -49,7 +63,7 @@ const geojsonFromPlot = (plot) => {
     };
 };
 
-const translationVector = (angle, distance) => {
+const translationVector = (angle: number, distance: number): Position => {
     const rotationVector = [
         [Math.cos(angle), -Math.sin(angle)],
         [Math.sin(angle), Math.cos(angle)],
@@ -65,15 +79,15 @@ const translationVector = (angle, distance) => {
     };
 };
 
-const translateDirection = (plot, angle, station, distance) => {
+const translateDirection = (plot: Plot, angle: number, station: Station, distance: number) => {
     const translation = translationVector(angle, distance);
 
     const translatedEasting = station.position.easting + translation.easting;
     const translatedNorthing = station.position.northing + translation.northing;
 
     const latlng = plot.datum.converter.convertUtmToLatLng(
-        parseFloat(translatedEasting / 3.28084),
-        parseFloat(translatedNorthing / 3.28084),
+        translatedEasting / metersToFeet,
+        translatedNorthing / metersToFeet,
         plot.utmZone,
         'R' // UTM zone letter, this maybe needs to be dynamic?
     );
@@ -84,9 +98,9 @@ const translateDirection = (plot, angle, station, distance) => {
 // Compass very rarely puts in negative values for tunnel dimensions
 // This shows up in the survey editor as "Pass.", but still renders.
 // This seems to match what the Plot Viewer does, but might be wrong.
-const translateBy = (num) => Math.abs(num);
+const translateBy = (amount: number) => Math.abs(amount);
 
-const polygonBetweenStations = (lastStation, station, plot, terminal) => {
+const polygonBetweenStations = (lastStation: Station, station: Station, plot: Plot, terminal: boolean) => {
     // Mirror Compass's behavior of using the last station's tunnel dimensions if
     // the station we're at is the last in the survey (i.e the terminal station)
     let currentStation = station;

@@ -1,4 +1,4 @@
-function multiplyMatrices(A, B) {
+function multiplyMatrices(A: number[][], B: number[][]) {
     // Get the number of rows and columns of the matrices
     const rowsA = A.length;
     const colsA = A[0].length;

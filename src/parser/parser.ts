@@ -1,3 +1,4 @@
+// @ts-ignore: This package doesn't have types and should be removed in general
 import splitSpacesExcludeQuotes from 'quoted-string-space-split';
 
 import Datum from './commands/Datum.js';
@@ -7,6 +8,17 @@ import RootStation from './commands/RootStation.js';
 import Survey from './commands/Survey.js';
 import UTMZone from './commands/UTMZone.js';
 import Station from './commands/Station.js';
+
+type Plot = { [key: string]: any };
+type Context = { [key: string]: any };
+
+type ParserCommand = {
+    command: string;
+    
+    new(): {
+        parse(args: string[], ctx: Context, plot: Plot): Plot;
+    };
+};
 
 class Parser {
     static commands = [
@@ -26,6 +38,10 @@ class Parser {
         'C', // No idea what this is, but it seems to usually just be 0
     ];
 
+    commandMap: { [command: string]: ParserCommand };
+    ctx: Context;
+    plot: Plot;
+
     constructor(units = 'feet') {
         this.commandMap = {};
         Parser.commands.forEach((command) => {
@@ -41,7 +57,7 @@ class Parser {
         this.plot = {};
     }
 
-    parseLine(line) {
+    parseLine(line: string) {
         const command = line[0];
         if (Parser.ignoredCommands.includes(command) || command === '') {
             return;
@@ -75,15 +91,15 @@ class Parser {
     }
 }
 
-const parse = (plt) => {
-    const lines = plt.split('\n');
+const parse = (pltFile: string) => {
+    const lines = pltFile.split('\n');
     const parser = new Parser();
 
-    lines.forEach((line) => {
+    lines.forEach((line: string) => {
         parser.parseLine(line);
     });
 
     return parser.getPlot();
 };
 
-export { parse };
+export { parse, type ParserCommand, type Plot, type Context };

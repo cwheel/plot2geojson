@@ -1,7 +1,7 @@
 class Name {
     static command = 'S';
 
-    parse(args) {
+    parse(args: string[]) {
         return {
             name: args[0],
         };

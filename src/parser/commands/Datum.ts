@@ -3,7 +3,7 @@ import UTM from 'utm-latlng';
 class Datum {
     static command = 'O';
 
-    parse(args) {
+    parse(args: string[]) {
         // This is the only string Compass doesn't mark with quotes
         const name = args.join(' ');
 
@@ -15,6 +15,7 @@ class Datum {
 
         // See https://www.npmjs.com/package/utm-latlng for supported datums
         if (name === 'North American 1927') {
+            // @ts-ignore: UTM's constructor does accept one argument
             converter = new UTM('Clarke 1866');
         }
 
