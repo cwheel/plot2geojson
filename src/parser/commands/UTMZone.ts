@@ -1,4 +1,4 @@
-class UTMZone {
+class UTMZoneCommand {
     static command = 'G';
 
     parse(args: string[]) {
@@ -8,4 +8,4 @@ class UTMZone {
     }
 }
 
-export default UTMZone;
+export default UTMZoneCommand;

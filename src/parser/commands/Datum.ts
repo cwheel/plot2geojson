@@ -1,6 +1,11 @@
 import UTM from 'utm-latlng';
 
-class Datum {
+type Datum = {
+    name: string;
+    converter: UTM;
+};
+
+class DatumCommand {
     static command = 'O';
 
     parse(args: string[]) {
@@ -28,4 +33,5 @@ class Datum {
     }
 }
 
-export default Datum;
+export default DatumCommand;
+export { type Datum };

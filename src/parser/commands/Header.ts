@@ -1,4 +1,4 @@
-class Header {
+class HeaderCommand {
     static command = 'Z';
 
     parse(args: string[]) {
@@ -9,4 +9,4 @@ class Header {
     }
 }
 
-export default Header;
+export default HeaderCommand;

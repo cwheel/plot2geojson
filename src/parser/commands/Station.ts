@@ -1,7 +1,7 @@
 import { stationFromArgs } from '../util/station.js';
 import { type Context, type Plot } from '../parser.js';
 
-class Station {
+class StationCommand {
     static command = 'D';
 
     parse(args: string[], ctx: Context, plot: Plot) {
@@ -14,4 +14,4 @@ class Station {
     }
 }
 
-export default Station;
+export default StationCommand;

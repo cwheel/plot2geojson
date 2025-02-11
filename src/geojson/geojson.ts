@@ -17,7 +17,10 @@ type Polygon = {
 const geojsonFromPlot = (plot: Plot) => {
     let polygons: Polygon[] = [];
 
-    plot.stations.forEach((rootStation: Station) => {
+    plot.stations.filter(
+        // If the station is excluded from plotting, skip it
+        station => !station.flags.ExcludePlotting && !station.flags.TotalExclusion
+    ).forEach((rootStation: Station) => {
         for (let i = 0; i < rootStation.stations.length; i++) {
             const station = rootStation.stations[i];
 
@@ -92,6 +95,7 @@ const translateDirection = (plot: Plot, angle: number, station: Station, distanc
         'R' // UTM zone letter, this maybe needs to be dynamic?
     );
 
+    // @ts-ignore: Once again, the types for utm-latlng are seemingly wrong
     return [latlng.lng, latlng.lat];
 };
 

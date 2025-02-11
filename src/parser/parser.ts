@@ -1,15 +1,26 @@
 // @ts-ignore: This package doesn't have types and should be removed in general
 import splitSpacesExcludeQuotes from 'quoted-string-space-split';
+import UTMLatLng from 'utm-latlng';
 
-import Datum from './commands/Datum.js';
-import Header from './commands/Header.js';
-import Name from './commands/Name.js';
-import RootStation from './commands/RootStation.js';
-import Survey from './commands/Survey.js';
-import UTMZone from './commands/UTMZone.js';
-import Station from './commands/Station.js';
+import DatumCommand, { type Datum } from './commands/Datum.js';
+import HeaderCommand from './commands/Header.js';
+import NameCommand from './commands/Name.js';
+import RootStationCommand from './commands/RootStation.js';
+import SurveyCommand, { type Survey } from './commands/Survey.js';
+import UTMZoneCommand from './commands/UTMZone.js';
+import StationCommand from './commands/Station.js';
 
-type Plot = { [key: string]: any };
+import { type Station as StationType } from './util/station.js';
+
+type Plot = {
+    name?: string;
+    maxDepth?: number;
+    maxPenetration?: number;
+    stations?: StationType[];
+    utmZone?: number;
+    datum?: Datum;
+    surveys?: Survey[];
+};
 type Context = { [key: string]: any };
 
 type ParserCommand = {
@@ -22,13 +33,13 @@ type ParserCommand = {
 
 class Parser {
     static commands = [
-        Header,
-        UTMZone,
-        Datum,
-        Name,
-        Survey,
-        RootStation,
-        Station,
+        HeaderCommand,
+        UTMZoneCommand,
+        DatumCommand,
+        NameCommand,
+        SurveyCommand,
+        RootStationCommand,
+        StationCommand,
     ];
 
     static ignoredCommands = [
@@ -36,6 +47,7 @@ class Parser {
         'X', // Bounding box, not of interest
         'P', // Starting point, not of interest (I think?)
         'C', // No idea what this is, but it seems to usually just be 0
+        'R', // Some caves have these, seems to be a list of surveys? Unsure what this is used for.
     ];
 
     commandMap: { [command: string]: ParserCommand };
@@ -58,7 +70,8 @@ class Parser {
     }
 
     parseLine(line: string) {
-        const command = line[0];
+        // Capitalize the command, sometimes Compass forgets (lol)
+        const command = line[0].toUpperCase();
         if (Parser.ignoredCommands.includes(command) || command === '') {
             return;
         }

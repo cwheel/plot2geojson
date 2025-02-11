@@ -1,4 +1,4 @@
-class Name {
+class NameCommand {
     static command = 'S';
 
     parse(args: string[]) {
@@ -8,4 +8,4 @@ class Name {
     }
 }
 
-export default Name;
+export default NameCommand;

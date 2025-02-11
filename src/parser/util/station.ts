@@ -14,11 +14,20 @@ type Station = {
         down: number;
     };
     penetration: number;
+    flags: {
+        ExcludePlotting: boolean;
+        ExcludeClosure: boolean;
+        ExcludeLength: boolean;
+        TotalExclusion: boolean;
+        Splay: boolean;
+    };
     comment: string | null;
     stations: Station[];
 };
 
 const stationFromArgs = (args: string[]): Station => {
+    const flags = args[11].split('');
+
     return {
         position: {
             northing: parseFloat(args[0]),
@@ -35,6 +44,13 @@ const stationFromArgs = (args: string[]): Station => {
             down: parseFloat(args[7]),
         },
         penetration: parseFloat(args[10]),
+        flags: {
+            ExcludePlotting: 'P' in flags,
+            ExcludeClosure: 'C' in flags,
+            ExcludeLength: 'L' in flags,
+            TotalExclusion: 'X' in flags,
+            Splay: 'S' in flags,
+        },
         comment: args.length >= 11 ? args[12] : null,
         stations: [],
     };

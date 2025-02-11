@@ -1,17 +1,22 @@
 import { type Context, type Plot } from '../parser.js';
 
-class Survey {
+type Survey = {
+    name: string;
+    date: Date;
+};
+
+class SurveyCommand {
     static command = 'N';
 
     parse(args: string[], ctx: Context, plot: Plot) {
-        const surveys = plot.surveys || [];
+        const surveys: Survey[] = plot?.surveys ?? [];
         surveys.push({
             name: args[0],
             // YYYY/MM/DD
             date: new Date(`${args[4]}/${args[2]}/${args[3]}`),
         });
 
-        ctx.currentSurvey = surveys.length - 1;
+        ctx.currentSurvey = (surveys?.length ?? 0) - 1;
 
         return {
             surveys,
@@ -19,4 +24,5 @@ class Survey {
     }
 }
 
-export default Survey;
+export default SurveyCommand;
+export { type Survey };
