@@ -3,7 +3,7 @@ import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
 import { parse } from './parser/parser.js';
-import geojsonFromPlot from './geojson.js';
+import geojsonFromPlot from './geojson/geojson.js';
 
 const argv = yargs(hideBin(process.argv))
     .command('$0 <input>', 'Convert PLT to GeoJSON', (yargs) => {
@@ -23,6 +23,4 @@ if (!argv.input.endsWith('.plt')) {
 const plt = await fs.readFile(argv.input, 'utf8');
 const plot = parse(plt);
 
-// todo: actually convert this to geojson
-// console.log(JSON.stringify(plot, null, 2));
 console.log(JSON.stringify(geojsonFromPlot(plot), null, 2));
