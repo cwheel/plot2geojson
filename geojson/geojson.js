@@ -6,8 +6,12 @@ const geojsonFromPlot = (plot) => {
     plot.stations.forEach((rootStation) => {
         for (let i = 0; i < rootStation.stations.length; i++) {
             const station = rootStation.stations[i];
+
+            // One station before this one
             const lastStation =
                 i === 0 ? rootStation : rootStation.stations[i - 1];
+
+            // Compass handles the last station of a survey diffirently
             const terminal = rootStation.stations.length - 1 === i;
 
             polygons.push({
@@ -45,24 +49,21 @@ const translationVector = (angle, distance) => {
         [Math.sin(angle), Math.cos(angle)],
     ];
 
-    const translatedVector = multiplyMatrices(rotationVector, [
-        [0],
-        [distance],
-    ]);
+    const distanceVector = [[0], [distance]];
+
+    const translation = multiplyMatrices(rotationVector, distanceVector);
 
     return {
-        easting: translatedVector[0][0],
-        northing: translatedVector[1][0],
+        easting: translation[0][0],
+        northing: translation[1][0],
     };
 };
 
 const translateDirection = (plot, angle, station, distance) => {
     const translation = translationVector(angle, distance);
 
-    const translatedEasting =
-        station.position.utm.easting + translation.easting;
-    const translatedNorthing =
-        station.position.utm.northing + translation.northing;
+    const translatedEasting = station.position.easting + translation.easting;
+    const translatedNorthing = station.position.northing + translation.northing;
 
     const latlng = plot.datum.converter.convertUtmToLatLng(
         parseFloat(translatedEasting / 3.28084),
@@ -88,8 +89,8 @@ const polygonBetweenStations = (lastStation, station, plot, terminal) => {
     }
 
     const azimuth = Math.atan2(
-        station.position.utm.northing - lastStation.position.utm.northing,
-        station.position.utm.easting - lastStation.position.utm.easting
+        station.position.northing - lastStation.position.northing,
+        station.position.easting - lastStation.position.easting
     );
 
     const firstPoint = translateDirection(
