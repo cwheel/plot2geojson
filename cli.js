@@ -1,9 +1,11 @@
+#!/usr/bin/env node
+
 import fs from 'fs/promises';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
-import { parse } from './parser/parser.js';
-import geojsonFromPlot from './geojson/geojson.js';
+import { parse } from './plt2geojson/parser/parser.js';
+import geojsonFromPlot from './plt2geojson/geojson/geojson.js';
 
 const argv = yargs(hideBin(process.argv))
     .command('$0 <input>', 'Convert PLT to GeoJSON', (yargs) => {

@@ -2,7 +2,7 @@
     "name": "plt2geojson",
     "version": "0.0.1",
     "description": "Convert Compass plot files (.plt) to GeoJSON",
-    "main": "plt2geojson.js",
+    "main": "index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "prepare": "husky install"
@@ -22,5 +22,8 @@
     },
     "lint-staged": {
         "*.{js,css,md}": "prettier --write"
+    },
+    "bin": {
+        "plt2geojson": "cli.js"
     }
 }
