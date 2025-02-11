@@ -24,6 +24,12 @@ const geojsonFromPlot = (plot) => {
                         terminal
                     ),
                 ],
+                properties: {
+                    name: station.name,
+                    depth: station.depth,
+                    penetration: station.penetration,
+                    comment: station.comment,
+                },
             });
         }
     });
