@@ -8,7 +8,7 @@ type Polygon = {
     coordinates: number[][][];
     properties: {
         name: string;
-        depth: number;
+        elevation: number;
         penetration: number;
         comment: string;
     };
@@ -43,7 +43,7 @@ const geojsonFromPlot = (plot: Plot) => {
                 ],
                 properties: {
                     name: station.name,
-                    depth: station.depth,
+                    elevation: station.elevation,
                     penetration: station.penetration,
                     comment: station.comment,
                 },

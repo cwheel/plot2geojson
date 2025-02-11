@@ -14,7 +14,7 @@ import { type Station as StationType } from './util/station.js';
 
 type Plot = {
     name?: string;
-    maxDepth?: number;
+    maxElevation?: number;
     maxPenetration?: number;
     stations?: StationType[];
     utmZone?: number;

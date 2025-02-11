@@ -5,7 +5,7 @@ type Position = {
 
 type Station = {
     position: Position;
-    depth: number;
+    elevation: number;
     name: string;
     walls: {
         left: number;
@@ -33,8 +33,7 @@ const stationFromArgs = (args: string[]): Station => {
             northing: parseFloat(args[0]),
             easting: parseFloat(args[1]),
         },
-        depth: parseFloat(args[2]),
-
+        elevation: parseFloat(args[2]),
         name: args[3].substring(1),
         // Compass stores these in LUDR order, not LRUD
         walls: {

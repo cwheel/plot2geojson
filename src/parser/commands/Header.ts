@@ -3,7 +3,7 @@ class HeaderCommand {
 
     parse(args: string[]) {
         return {
-            maxDepth: parseFloat(args[4]),
+            maxElevation: parseFloat(args[4]),
             maxPenetration: parseFloat(args[7]),
         };
     }
