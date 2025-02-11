@@ -7,7 +7,7 @@ type Station = {
     position: Position;
     depth: number;
     name: string;
-    tunnel: {
+    walls: {
         left: number;
         right: number;
         up: number;
@@ -28,7 +28,7 @@ const stationFromArgs = (args: string[]): Station => {
 
         name: args[3].substring(1),
         // Compass stores these in LUDR order, not LRUD
-        tunnel: {
+        walls: {
             left: parseFloat(args[5]),
             right: parseFloat(args[8]),
             up: parseFloat(args[6]),

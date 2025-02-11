@@ -117,28 +117,28 @@ const polygonBetweenStations = (lastStation: Station, station: Station, plot: Pl
         plot,
         azimuth,
         lastStation,
-        -translateBy(lastStation.tunnel.right)
+        -translateBy(lastStation.walls.right)
     );
 
     const secondPoint = translateDirection(
         plot,
         azimuth,
         lastStation,
-        translateBy(lastStation.tunnel.left)
+        translateBy(lastStation.walls.left)
     );
 
     const thirdPoint = translateDirection(
         plot,
         azimuth,
         station,
-        translateBy(currentStation.tunnel.left)
+        translateBy(currentStation.walls.left)
     );
 
     const fourthPoint = translateDirection(
         plot,
         azimuth,
         station,
-        -translateBy(currentStation.tunnel.right)
+        -translateBy(currentStation.walls.right)
     );
 
     return [
