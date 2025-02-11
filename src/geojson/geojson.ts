@@ -11,6 +11,11 @@ type Polygon = {
         elevation: number;
         penetration: number;
         comment: string;
+        flags: {
+            ExcludeClosure: boolean;
+            ExcludeLength: boolean;
+            Splay: boolean;
+        };
     };
 };
 
@@ -46,6 +51,11 @@ const geojsonFromPlot = (plot: Plot) => {
                     elevation: station.elevation,
                     penetration: station.penetration,
                     comment: station.comment,
+                    flags: {
+                        ExcludeClosure: station.flags.ExcludeClosure,
+                        ExcludeLength: station.flags.ExcludeLength,
+                        Splay: station.flags.Splay,
+                    }
                 },
             });
         }
