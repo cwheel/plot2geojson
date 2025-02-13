@@ -21,67 +21,76 @@ type Polygon = {
 
 type RenderOptions = {
     pretty: boolean;
+    line: boolean;
 };
 
 const geojsonFromPlot = (
     plot: Plot,
-    options: RenderOptions = { pretty: false }
+    options: RenderOptions = {
+        pretty: false,
+        line: false,
+    }
 ) => {
     let polygons: Polygon[] = [];
 
-    plot.stations
-        .filter(
-            // If the station is excluded from plotting, skip it
-            (station) =>
-                !station.flags.ExcludePlotting && !station.flags.TotalExclusion
-        )
-        .forEach((rootStation: Station) => {
-            let lastAzimuth = null;
-            for (let i = 0; i < rootStation.stations.length; i++) {
-                const station = rootStation.stations[i];
+    const visibleStations = plot.stations.filter(
+        // If the station is excluded from plotting, skip it
+        (station) =>
+            !station.flags.ExcludePlotting && !station.flags.TotalExclusion
+    );
 
-                // One station before this one
-                const lastStation =
-                    i === 0 ? rootStation : rootStation.stations[i - 1];
+    const allStations = plot.stations.reduce(
+        (all, root) => [root, ...root.stations, ...all],
+        []
+    );
 
-                // Next station after this one
-                const nextStation =
-                    i + 1 < rootStation.stations.length - 1
-                        ? rootStation.stations[i + 1]
-                        : null;
+    visibleStations.forEach((rootStation: Station) => {
+        let lastAzimuth = null;
+        for (let i = 0; i < rootStation.stations.length; i++) {
+            const station = rootStation.stations[i];
 
-                // Compass handles the last station of a survey diffirently
-                const terminal = rootStation.stations.length - 1 === i;
+            // One station before this one
+            const lastStation =
+                i === 0 ? rootStation : rootStation.stations[i - 1];
 
-                const { polygon, azimuth } = polygonBetweenStations(
-                    lastStation,
-                    station,
-                    nextStation,
-                    lastAzimuth,
-                    plot,
-                    terminal,
-                    options
-                );
+            // Next station after this one
+            const nextStation =
+                i + 1 < rootStation.stations.length - 1
+                    ? rootStation.stations[i + 1]
+                    : null;
 
-                lastAzimuth = azimuth;
+            // Compass handles the last station of a survey diffirently
+            const terminal = rootStation.stations.length - 1 === i;
 
-                polygons.push({
-                    type: 'Polygon',
-                    coordinates: [polygon],
-                    properties: {
-                        name: station.name,
-                        elevation: station.elevation,
-                        penetration: station.penetration,
-                        comment: station.comment,
-                        flags: {
-                            ExcludeClosure: station.flags.ExcludeClosure,
-                            ExcludeLength: station.flags.ExcludeLength,
-                            Splay: station.flags.Splay,
-                        },
+            const { polygon, azimuth } = polygonBetweenStations(
+                lastStation,
+                station,
+                nextStation,
+                lastAzimuth,
+                plot,
+                terminal,
+                options
+            );
+
+            lastAzimuth = azimuth;
+
+            polygons.push({
+                type: 'Polygon',
+                coordinates: [polygon],
+                properties: {
+                    name: station.name,
+                    elevation: station.elevation,
+                    penetration: station.penetration,
+                    comment: station.comment,
+                    flags: {
+                        ExcludeClosure: station.flags.ExcludeClosure,
+                        ExcludeLength: station.flags.ExcludeLength,
+                        Splay: station.flags.Splay,
                     },
-                });
-            }
-        });
+                },
+            });
+        }
+    });
 
     return {
         type: 'FeatureCollection',
@@ -94,6 +103,31 @@ const geojsonFromPlot = (
                 },
                 properties: {},
             },
+            ...(options.line
+                ? visibleStations.map((root) => ({
+                      type: 'Feature',
+                      geometry: {
+                          type: 'LineString',
+                          coordinates: [root, ...root.stations].map(
+                              (station) => {
+                                  const latlng =
+                                      plot.datum.converter.convertUtmToLatLng(
+                                          station.position.easting /
+                                              metersToFeet,
+                                          station.position.northing /
+                                              metersToFeet,
+                                          plot.utmZone,
+                                          'R' // UTM zone letter, this maybe needs to be dynamic?
+                                      );
+
+                                  // @ts-ignore: Once again, the types for utm-latlng are seemingly wrong
+                                  return [latlng.lng, latlng.lat];
+                              }
+                          ),
+                      },
+                      properties: {},
+                  }))
+                : []),
         ],
     };
 };

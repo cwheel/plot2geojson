@@ -25,6 +25,11 @@ const argv = yargs(hideBin(process.argv))
         describe: 'Render the GeoJSON with more visually appealing polygons',
         type: 'boolean',
     })
+    .option('line', {
+        alias: 'l',
+        describe: 'Render the GeoJSON with a line connecting each station',
+        type: 'boolean',
+    })
     .demandCommand(1)
     .parseSync();
 
@@ -65,7 +70,10 @@ if (argv.analyze) {
         console.log(`Survey ${survey.name} on`, survey.date.toDateString());
     });
 } else {
-    console.log(
-        JSON.stringify(geojsonFromPlot(plot, { pretty: argv.pretty }), null, 2)
-    );
+    const renderOptions = {
+        pretty: argv.pretty,
+        line: argv.line,
+    };
+
+    console.log(JSON.stringify(geojsonFromPlot(plot, renderOptions), null, 2));
 }
