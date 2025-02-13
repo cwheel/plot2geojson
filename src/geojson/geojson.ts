@@ -108,28 +108,27 @@ const geojsonFromPlot = (
                       type: 'Feature',
                       geometry: {
                           type: 'LineString',
-                          coordinates: [root, ...root.stations].map(
-                              (station) => {
-                                  const latlng =
-                                      plot.datum.converter.convertUtmToLatLng(
-                                          station.position.easting /
-                                              metersToFeet,
-                                          station.position.northing /
-                                              metersToFeet,
-                                          plot.utmZone,
-                                          'R' // UTM zone letter, this maybe needs to be dynamic?
-                                      );
-
-                                  // @ts-ignore: Once again, the types for utm-latlng are seemingly wrong
-                                  return [latlng.lng, latlng.lat];
-                              }
-                          ),
+                          coordinates: lineForSurvey(root, plot),
                       },
                       properties: {},
                   }))
                 : []),
         ],
     };
+};
+
+const utmToLatLng = (easting: number, northing: number, plot: Plot) => {
+    const unit = plot.units === 'feet' ? metersToFeet : 1;
+
+    const latlng = plot.datum.converter.convertUtmToLatLng(
+        easting / unit,
+        northing / unit,
+        plot.utmZone,
+        'R' // UTM zone letter, this maybe needs to be dynamic?
+    );
+
+    // @ts-ignore: Once again, the types for utm-latlng are seemingly wrong
+    return [latlng.lng, latlng.lat];
 };
 
 const translationVector = (azimuth: number, distance: number): Position => {
@@ -161,15 +160,11 @@ const translateDirection = (
     const translatedEasting = station.position.easting + translation.easting;
     const translatedNorthing = station.position.northing + translation.northing;
 
-    const latlng = plot.datum.converter.convertUtmToLatLng(
+    return utmToLatLng(
         translatedEasting / metersToFeet,
         translatedNorthing / metersToFeet,
-        plot.utmZone,
-        'R' // UTM zone letter, this maybe needs to be dynamic?
+        plot
     );
-
-    // @ts-ignore: Once again, the types for utm-latlng are seemingly wrong
-    return [latlng.lng, latlng.lat];
 };
 
 // Compass very rarely puts in negative values for tunnel dimensions
@@ -251,6 +246,13 @@ const polygonBetweenStations = (
         ],
         azimuth,
     };
+};
+
+const lineForSurvey = (root: Station, plot: Plot) => {
+    // Root itself is a station, include it so the line originates from it
+    return [root, ...root.stations].map((station) =>
+        utmToLatLng(station.position.easting, station.position.northing, plot)
+    );
 };
 
 export default geojsonFromPlot;

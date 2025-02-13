@@ -1,6 +1,5 @@
 // @ts-ignore: This package doesn't have types and should be removed in general
 import splitSpacesExcludeQuotes from 'quoted-string-space-split';
-import UTMLatLng from 'utm-latlng';
 
 import DatumCommand, { type Datum } from './commands/Datum.js';
 import HeaderCommand from './commands/Header.js';
@@ -12,6 +11,7 @@ import StationCommand from './commands/Station.js';
 
 import { type Station as StationType } from './util/station.js';
 
+type Units = 'feet' | 'meters';
 type Plot = {
     name?: string;
     maxElevation?: number;
@@ -20,6 +20,7 @@ type Plot = {
     utmZone?: number;
     datum?: Datum;
     surveys?: Survey[];
+    units?: Units;
 };
 type Context = { [key: string]: any };
 
@@ -54,19 +55,17 @@ class Parser {
     ctx: Context;
     plot: Plot;
 
-    constructor(units = 'feet') {
+    constructor(units: Units = 'feet') {
         this.commandMap = {};
         Parser.commands.forEach((command) => {
             this.commandMap[command.command] = command;
         });
 
         // Context to share between commands since some of them depend on each other
-        this.ctx = {
-            units,
-        };
+        this.ctx = {};
 
         // The reconstructed plot, built as each line is parsed
-        this.plot = {};
+        this.plot = { units };
     }
 
     parseLine(line: string) {
