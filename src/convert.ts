@@ -1,9 +1,9 @@
 import { parse } from './parser/parser.js';
-import geojsonFromPlot from './geojson/geojson.js';
+import geojsonFromPlot, { type RenderOptions } from './geojson/geojson.js';
 
-const plt2geojson = (pltFile: string) => {
+const plt2geojson = (pltFile: string, options: RenderOptions) => {
     const plot = parse(pltFile);
-    const geoJson = geojsonFromPlot(plot);
+    const geoJson = geojsonFromPlot(plot, options);
 
     return JSON.stringify(geoJson);
 };

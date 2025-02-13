@@ -19,13 +19,18 @@ type Polygon = {
     };
 };
 
-const geojsonFromPlot = (plot: Plot) => {
+type RenderOptions = {
+    pretty: boolean;
+};
+
+const geojsonFromPlot = (plot: Plot, options: RenderOptions = { pretty: false }) => {
     let polygons: Polygon[] = [];
 
     plot.stations.filter(
         // If the station is excluded from plotting, skip it
         station => !station.flags.ExcludePlotting && !station.flags.TotalExclusion
     ).forEach((rootStation: Station) => {
+        let lastAzimuth = null;
         for (let i = 0; i < rootStation.stations.length; i++) {
             const station = rootStation.stations[i];
 
@@ -33,19 +38,28 @@ const geojsonFromPlot = (plot: Plot) => {
             const lastStation =
                 i === 0 ? rootStation : rootStation.stations[i - 1];
 
+            // Next station after this one
+            const nextStation =
+                i + 1 < rootStation.stations.length - 1 ? rootStation.stations[i + 1] : null;    
+
             // Compass handles the last station of a survey diffirently
             const terminal = rootStation.stations.length - 1 === i;
 
+            const { polygon, azimuth } = polygonBetweenStations(
+                lastStation,
+                station,
+                nextStation,
+                lastAzimuth,
+                plot,
+                terminal,
+                options,
+            );
+
+            lastAzimuth = azimuth;
+
             polygons.push({
                 type: 'Polygon',
-                coordinates: [
-                    polygonBetweenStations(
-                        lastStation,
-                        station,
-                        plot,
-                        terminal
-                    ),
-                ],
+                coordinates: [polygon],
                 properties: {
                     name: station.name,
                     elevation: station.elevation,
@@ -76,10 +90,12 @@ const geojsonFromPlot = (plot: Plot) => {
     };
 };
 
-const translationVector = (angle: number, distance: number): Position => {
+const translationVector = (azimuth: number, distance: number): Position => {
+    // Standard rotation matrix for a given angle (the segment azimuth)
+    // https://en.wikipedia.org/wiki/Rotation_matrix
     const rotationVector = [
-        [Math.cos(angle), -Math.sin(angle)],
-        [Math.sin(angle), Math.cos(angle)],
+        [Math.cos(azimuth), -Math.sin(azimuth)],
+        [Math.sin(azimuth), Math.cos(azimuth)],
     ];
 
     const distanceVector = [[0], [distance]];
@@ -92,7 +108,7 @@ const translationVector = (angle: number, distance: number): Position => {
     };
 };
 
-const translateDirection = (plot: Plot, angle: number, station: Station, distance: number) => {
+const translateDirection = (plot: Plot, angle: number, station: Station, distance: number): number[] => {
     const translation = translationVector(angle, distance);
 
     const translatedEasting = station.position.easting + translation.easting;
@@ -114,7 +130,15 @@ const translateDirection = (plot: Plot, angle: number, station: Station, distanc
 // This seems to match what the Plot Viewer does, but might be wrong.
 const translateBy = (amount: number) => Math.abs(amount);
 
-const polygonBetweenStations = (lastStation: Station, station: Station, plot: Plot, terminal: boolean) => {
+const polygonBetweenStations = (
+    lastStation: Station,
+    station: Station,
+    nextStation: Station,
+    lastAzimuth: number | null,
+    plot: Plot,
+    terminal: boolean,
+    options: RenderOptions
+): { polygon: number[][], azimuth: number } => {
     // Mirror Compass's behavior of using the last station's tunnel dimensions if
     // the station we're at is the last in the survey (i.e the terminal station)
     let currentStation = station;
@@ -122,21 +146,35 @@ const polygonBetweenStations = (lastStation: Station, station: Station, plot: Pl
         currentStation = lastStation;
     }
 
-    const azimuth = Math.atan2(
+    let azimuth = Math.atan2(
         station.position.northing - lastStation.position.northing,
         station.position.easting - lastStation.position.easting
     );
 
+    if (options.pretty && nextStation) {
+        // Calculate the azimuth to the next station
+        const nextAzimuth = Math.atan2(
+            nextStation.position.northing - station.position.northing,
+            nextStation.position.easting - station.position.easting
+        );
+
+        // Average the azimuths between the last and next segments
+        azimuth = (azimuth + nextAzimuth) / 2;
+    }
+
+    // If we're in pretty mode, plot the first two points with the last azimuth
+    const startingAzimuth = options.pretty ? lastAzimuth || azimuth : azimuth;
+
     const firstPoint = translateDirection(
         plot,
-        azimuth,
+        startingAzimuth,
         lastStation,
         -translateBy(lastStation.walls.right)
     );
 
     const secondPoint = translateDirection(
         plot,
-        azimuth,
+        startingAzimuth,
         lastStation,
         translateBy(lastStation.walls.left)
     );
@@ -155,14 +193,18 @@ const polygonBetweenStations = (lastStation: Station, station: Station, plot: Pl
         -translateBy(currentStation.walls.right)
     );
 
-    return [
-        firstPoint,
-        secondPoint,
-        thirdPoint,
-        fourthPoint,
-        // Repeated to close the polygon
-        firstPoint,
-    ];
+    return {
+        polygon: [
+            firstPoint,
+            secondPoint,
+            thirdPoint,
+            fourthPoint,
+            // Repeated to close the polygon
+            firstPoint,
+        ],
+        azimuth,
+    }
 };
 
 export default geojsonFromPlot;
+export type { RenderOptions };

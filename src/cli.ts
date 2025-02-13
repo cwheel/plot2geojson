@@ -19,6 +19,11 @@ const argv = yargs(hideBin(process.argv))
         describe: 'Analyze the Compass file instead of converting it to GeoJSON',
         type: 'boolean',
     })
+    .option('pretty', {
+        alias: 'p',
+        describe: 'Render the GeoJSON with more visually appealing polygons',
+        type: 'boolean',
+    })
     .demandCommand(1)
     .parseSync();
 
@@ -44,5 +49,5 @@ if (argv.analyze) {
         console.log(`Survey ${survey.name} on`, survey.date.toDateString());
     });
 } else {
-    console.log(JSON.stringify(geojsonFromPlot(plot), null, 2));
+    console.log(JSON.stringify(geojsonFromPlot(plot, { pretty: argv.pretty }), null, 2));
 }
