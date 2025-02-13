@@ -2,6 +2,7 @@ import { type Station, type Position } from '../parser/util/station.js';
 import { type Plot } from '../parser/parser.js';
 import { multiplyMatrices } from './util/matrix.js';
 import { metersToFeet } from './util/constants.js';
+import { type BoundingBox } from '../parser/commands/BoundingBox.js';
 
 type Polygon = {
     type: string;
@@ -23,6 +24,8 @@ type RenderOptions = {
     pretty: boolean;
     line: boolean;
 };
+
+type LatLngPoint = [number, number];
 
 const geojsonFromPlot = (
     plot: Plot,
@@ -92,6 +95,8 @@ const geojsonFromPlot = (
         }
     });
 
+    const bounds = globalBoundingBox(plot);
+
     return {
         type: 'FeatureCollection',
         features: [
@@ -114,10 +119,17 @@ const geojsonFromPlot = (
                   }))
                 : []),
         ],
+        metadata: {
+            boundingBox: bounds,
+        },
     };
 };
 
-const utmToLatLng = (easting: number, northing: number, plot: Plot) => {
+const utmToLatLng = (
+    easting: number,
+    northing: number,
+    plot: Plot
+): LatLngPoint => {
     const unit = plot.units === 'feet' ? metersToFeet : 1;
 
     const latlng = plot.datum.converter.convertUtmToLatLng(
@@ -160,11 +172,7 @@ const translateDirection = (
     const translatedEasting = station.position.easting + translation.easting;
     const translatedNorthing = station.position.northing + translation.northing;
 
-    return utmToLatLng(
-        translatedEasting / metersToFeet,
-        translatedNorthing / metersToFeet,
-        plot
-    );
+    return utmToLatLng(translatedEasting, translatedNorthing, plot);
 };
 
 // Compass very rarely puts in negative values for tunnel dimensions
@@ -253,6 +261,27 @@ const lineForSurvey = (root: Station, plot: Plot) => {
     return [root, ...root.stations].map((station) =>
         utmToLatLng(station.position.easting, station.position.northing, plot)
     );
+};
+
+const globalBoundingBox = (
+    plot: Plot
+): { min: LatLngPoint; max: LatLngPoint } => {
+    let northingMin = Number.POSITIVE_INFINITY;
+    let northingMax = Number.NEGATIVE_INFINITY;
+    let eastingMin = Number.POSITIVE_INFINITY;
+    let eastingMax = Number.NEGATIVE_INFINITY;
+
+    plot.bounds.forEach((boundingBox) => {
+        northingMin = Math.min(northingMin, boundingBox.northingMin);
+        northingMax = Math.max(northingMax, boundingBox.northingMax);
+        eastingMin = Math.min(eastingMin, boundingBox.eastingMin);
+        eastingMax = Math.max(eastingMax, boundingBox.eastingMax);
+    });
+
+    return {
+        min: utmToLatLng(eastingMin, northingMin, plot),
+        max: utmToLatLng(eastingMax, northingMax, plot),
+    };
 };
 
 export default geojsonFromPlot;

@@ -8,18 +8,21 @@ import RootStationCommand from './commands/RootStation.js';
 import SurveyCommand, { type Survey } from './commands/Survey.js';
 import UTMZoneCommand from './commands/UTMZone.js';
 import StationCommand from './commands/Station.js';
+import BoundingBoxCommand from './commands/BoundingBox.js';
 
-import { type Station as StationType } from './util/station.js';
+import { type Station } from './util/station.js';
+import { type BoundingBox } from './commands/BoundingBox.js';
 
 type Units = 'feet' | 'meters';
 type Plot = {
     name?: string;
     maxElevation?: number;
     maxPenetration?: number;
-    stations?: StationType[];
+    stations?: Station[];
     utmZone?: number;
     datum?: Datum;
     surveys?: Survey[];
+    bounds?: BoundingBox[];
     units?: Units;
 };
 type Context = { [key: string]: any };
@@ -41,11 +44,11 @@ class Parser {
         SurveyCommand,
         RootStationCommand,
         StationCommand,
+        BoundingBoxCommand,
     ];
 
     static ignoredCommands = [
         'E', // Seems to just duplicate 'N' for reasons unknown
-        'X', // Bounding box, not of interest
         'P', // Starting point, not of interest (I think?)
         'C', // No idea what this is, but it seems to usually just be 0
         'R', // Some caves have these, seems to be a list of surveys? Unsure what this is used for.
