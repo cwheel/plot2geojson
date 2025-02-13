@@ -23,57 +23,65 @@ type RenderOptions = {
     pretty: boolean;
 };
 
-const geojsonFromPlot = (plot: Plot, options: RenderOptions = { pretty: false }) => {
+const geojsonFromPlot = (
+    plot: Plot,
+    options: RenderOptions = { pretty: false }
+) => {
     let polygons: Polygon[] = [];
 
-    plot.stations.filter(
-        // If the station is excluded from plotting, skip it
-        station => !station.flags.ExcludePlotting && !station.flags.TotalExclusion
-    ).forEach((rootStation: Station) => {
-        let lastAzimuth = null;
-        for (let i = 0; i < rootStation.stations.length; i++) {
-            const station = rootStation.stations[i];
+    plot.stations
+        .filter(
+            // If the station is excluded from plotting, skip it
+            (station) =>
+                !station.flags.ExcludePlotting && !station.flags.TotalExclusion
+        )
+        .forEach((rootStation: Station) => {
+            let lastAzimuth = null;
+            for (let i = 0; i < rootStation.stations.length; i++) {
+                const station = rootStation.stations[i];
 
-            // One station before this one
-            const lastStation =
-                i === 0 ? rootStation : rootStation.stations[i - 1];
+                // One station before this one
+                const lastStation =
+                    i === 0 ? rootStation : rootStation.stations[i - 1];
 
-            // Next station after this one
-            const nextStation =
-                i + 1 < rootStation.stations.length - 1 ? rootStation.stations[i + 1] : null;    
+                // Next station after this one
+                const nextStation =
+                    i + 1 < rootStation.stations.length - 1
+                        ? rootStation.stations[i + 1]
+                        : null;
 
-            // Compass handles the last station of a survey diffirently
-            const terminal = rootStation.stations.length - 1 === i;
+                // Compass handles the last station of a survey diffirently
+                const terminal = rootStation.stations.length - 1 === i;
 
-            const { polygon, azimuth } = polygonBetweenStations(
-                lastStation,
-                station,
-                nextStation,
-                lastAzimuth,
-                plot,
-                terminal,
-                options,
-            );
+                const { polygon, azimuth } = polygonBetweenStations(
+                    lastStation,
+                    station,
+                    nextStation,
+                    lastAzimuth,
+                    plot,
+                    terminal,
+                    options
+                );
 
-            lastAzimuth = azimuth;
+                lastAzimuth = azimuth;
 
-            polygons.push({
-                type: 'Polygon',
-                coordinates: [polygon],
-                properties: {
-                    name: station.name,
-                    elevation: station.elevation,
-                    penetration: station.penetration,
-                    comment: station.comment,
-                    flags: {
-                        ExcludeClosure: station.flags.ExcludeClosure,
-                        ExcludeLength: station.flags.ExcludeLength,
-                        Splay: station.flags.Splay,
-                    }
-                },
-            });
-        }
-    });
+                polygons.push({
+                    type: 'Polygon',
+                    coordinates: [polygon],
+                    properties: {
+                        name: station.name,
+                        elevation: station.elevation,
+                        penetration: station.penetration,
+                        comment: station.comment,
+                        flags: {
+                            ExcludeClosure: station.flags.ExcludeClosure,
+                            ExcludeLength: station.flags.ExcludeLength,
+                            Splay: station.flags.Splay,
+                        },
+                    },
+                });
+            }
+        });
 
     return {
         type: 'FeatureCollection',
@@ -108,7 +116,12 @@ const translationVector = (azimuth: number, distance: number): Position => {
     };
 };
 
-const translateDirection = (plot: Plot, angle: number, station: Station, distance: number): number[] => {
+const translateDirection = (
+    plot: Plot,
+    angle: number,
+    station: Station,
+    distance: number
+): number[] => {
     const translation = translationVector(angle, distance);
 
     const translatedEasting = station.position.easting + translation.easting;
@@ -138,7 +151,7 @@ const polygonBetweenStations = (
     plot: Plot,
     terminal: boolean,
     options: RenderOptions
-): { polygon: number[][], azimuth: number } => {
+): { polygon: number[][]; azimuth: number } => {
     // Mirror Compass's behavior of using the last station's tunnel dimensions if
     // the station we're at is the last in the survey (i.e the terminal station)
     let currentStation = station;
@@ -203,7 +216,7 @@ const polygonBetweenStations = (
             firstPoint,
         ],
         azimuth,
-    }
+    };
 };
 
 export default geojsonFromPlot;

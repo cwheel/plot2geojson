@@ -25,8 +25,8 @@ type Context = { [key: string]: any };
 
 type ParserCommand = {
     command: string;
-    
-    new(): {
+
+    new (): {
         parse(args: string[], ctx: Context, plot: Plot): Plot;
     };
 };

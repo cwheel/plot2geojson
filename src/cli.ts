@@ -16,7 +16,8 @@ const argv = yargs(hideBin(process.argv))
     })
     .option('analyze', {
         alias: 'a',
-        describe: 'Analyze the Compass file instead of converting it to GeoJSON',
+        describe:
+            'Analyze the Compass file instead of converting it to GeoJSON',
         type: 'boolean',
     })
     .option('pretty', {
@@ -40,8 +41,23 @@ if (argv.analyze) {
     console.log('Name:', plot.name);
     console.log('Datum:', plot.datum.name);
     console.log('Root Stations:', plot.stations.length);
-    console.log('Child Stations:', plot.stations.reduce((acc, station) => acc + station.stations.length, 0));
-    console.log('Hidden Stations:', plot.stations.reduce((acc, station) => acc + station.stations.filter(station => station.flags.ExcludePlotting || station.flags.TotalExclusion).length, 0));
+    console.log(
+        'Child Stations:',
+        plot.stations.reduce((acc, station) => acc + station.stations.length, 0)
+    );
+    console.log(
+        'Hidden Stations:',
+        plot.stations.reduce(
+            (acc, station) =>
+                acc +
+                station.stations.filter(
+                    (station) =>
+                        station.flags.ExcludePlotting ||
+                        station.flags.TotalExclusion
+                ).length,
+            0
+        )
+    );
     console.log('----------------------------------------');
     console.log('Surveys:', plot.surveys.length);
     console.log('');
@@ -49,5 +65,7 @@ if (argv.analyze) {
         console.log(`Survey ${survey.name} on`, survey.date.toDateString());
     });
 } else {
-    console.log(JSON.stringify(geojsonFromPlot(plot, { pretty: argv.pretty }), null, 2));
+    console.log(
+        JSON.stringify(geojsonFromPlot(plot, { pretty: argv.pretty }), null, 2)
+    );
 }
