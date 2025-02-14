@@ -12,12 +12,41 @@ Run plot2geojson by passing the `.plt` file to reproduce the plot as GeoJSON:
 
 `npx plt2geojson /path/to/your/plot.plt`
 
+**Options:**
+```
+cli.js <input>
+
+Convert PLT to GeoJSON
+
+Positionals:
+  input  Input Compass PLT file                                         [string]
+
+Options:
+      --help     Show help                                             [boolean]
+      --version  Show version number                                   [boolean]
+  -a, --analyze  Analyze the Compass file instead of converting it to GeoJSON
+                                                                       [boolean]
+  -p, --pretty   Render the GeoJSON with more visually appealing polygons
+                                                                       [boolean]
+  -l, --line     Render the GeoJSON with a line connecting each station[boolean]
+```
+
 ## Usage (lib)
 
 ```
 import plt2geojson from 'plt2geojson';
 
-plt2geojson(plotFile: string): string;
+plt2geojson(plotFile: string, options?: RenderOptions): string;
+```
+
+**RenderOptions**
+```
+type RenderOptions = {
+    // Render the GeoJSON with more visually appealing polygons
+    pretty: boolean;
+    // Render the GeoJSON with a line connecting each station
+    line: boolean;
+};
 ```
 
 ## GeoJSON structure
