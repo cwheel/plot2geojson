@@ -2,7 +2,6 @@ import { type Station, type Position } from '../parser/util/station.js';
 import { type Plot } from '../parser/parser.js';
 import { multiplyMatrices } from './util/matrix.js';
 import { metersToFeet } from './util/constants.js';
-import { type BoundingBox } from '../parser/commands/BoundingBox.js';
 
 type Polygon = {
     type: string;
@@ -265,7 +264,7 @@ const lineForSurvey = (root: Station, plot: Plot) => {
 
 const globalBoundingBox = (
     plot: Plot
-): { min: LatLngPoint; max: LatLngPoint } => {
+): { min: LatLngPoint; max: LatLngPoint; approximateArea: number } => {
     let northingMin = Number.POSITIVE_INFINITY;
     let northingMax = Number.NEGATIVE_INFINITY;
     let eastingMin = Number.POSITIVE_INFINITY;
@@ -278,9 +277,15 @@ const globalBoundingBox = (
         eastingMax = Math.max(eastingMax, boundingBox.eastingMax);
     });
 
+    // This is the "approximate" area because we're on a sphere. That being said,
+    // the majority of caves are small enough that this is a good enough approximation.
+    const boundsWidth = eastingMax - eastingMin;
+    const boundsHeight = northingMax - northingMin;
+
     return {
         min: utmToLatLng(eastingMin, northingMin, plot),
         max: utmToLatLng(eastingMax, northingMax, plot),
+        approximateArea: boundsWidth * boundsHeight,
     };
 };
 

@@ -1,7 +1,10 @@
 import UTM from 'utm-latlng';
 
+// Compass suports a lot of these, but I'm only adding ones we actually use here for now
+type SupportedDatum = 'WGS 1984' | 'North American 1927';
+
 type Datum = {
-    name: string;
+    name: SupportedDatum;
     converter: UTM;
 };
 
@@ -34,4 +37,4 @@ class DatumCommand {
 }
 
 export default DatumCommand;
-export { type Datum };
+export { type Datum, type SupportedDatum };
