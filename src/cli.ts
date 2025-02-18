@@ -32,7 +32,7 @@ const argv = yargs(hideBin(process.argv))
     })
     .option('debug', {
         alias: 'd',
-        describe: 'Render the GeoJSON with a line connecting each station',
+        describe: 'Supress GeoJSON output for debugging',
         type: 'boolean',
     })
     .demandCommand(1)
@@ -80,9 +80,9 @@ if (argv.analyze) {
         line: argv.line,
     };
 
+    const geojson = geojsonFromPlot(plot, renderOptions);
+
     if (!argv.debug) {
-        console.log(
-            JSON.stringify(geojsonFromPlot(plot, renderOptions), null, 2)
-        );
+        console.log(JSON.stringify(geojson, null, 2));
     }
 }

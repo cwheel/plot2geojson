@@ -10,20 +10,27 @@ class RootStationCommand {
         // Prefixed with a name command, remove it
         const stationName = args[3].substring(1);
 
+        const newStation = stationFromArgs(args);
+
         for (let rootStation of stations) {
+            const terminalStation =
+                rootStation.stations[rootStation.stations.length - 1];
             // If the last station in the root station is the same as the new station, this survey
             // is a continuation of the last survey, don't make a new root station for it.
             if (
-                rootStation.stations[rootStation.stations.length - 1].name ===
-                stationName
+                terminalStation.name === stationName &&
+                terminalStation.position.northing ===
+                    newStation.position.northing &&
+                terminalStation.position.easting ===
+                    newStation.position.easting &&
+                terminalStation.elevation === newStation.elevation
             ) {
                 ctx.currentRootName = rootStation.name;
+                ctx.roots[rootStation.name] = rootStation;
 
                 return { stations };
             }
         }
-
-        const newStation = stationFromArgs(args);
 
         if (ctx.currentRootName) {
             const lastRoot = ctx.roots[ctx.currentRootName];
@@ -50,8 +57,6 @@ class RootStationCommand {
                         station.walls.down,
                         newStation.walls.down
                     );
-
-                    return;
                 }
             }
         }
