@@ -48,6 +48,7 @@ const geojsonFromPlot = (
 
     visibleStations.forEach((rootStation: Station) => {
         let lastAzimuth = null;
+
         for (let i = 0; i < rootStation.stations.length; i++) {
             const station = rootStation.stations[i];
 

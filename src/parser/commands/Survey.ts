@@ -16,8 +16,6 @@ class SurveyCommand {
             date: new Date(`${args[4]}/${args[2]}/${args[3]}`),
         });
 
-        ctx.currentSurvey = (surveys?.length ?? 0) - 1;
-
         return {
             surveys,
         };

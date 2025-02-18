@@ -1,4 +1,4 @@
-import { Plot } from '../parser.js';
+import { type Plot, type Context } from '../parser.js';
 
 type BoundingBox = {
     northingMin: number;
@@ -10,7 +10,7 @@ type BoundingBox = {
 class BoundingBoxCommand {
     static command = 'X';
 
-    parse(args: string[], plot: Plot) {
+    parse(args: string[], ctx: Context, plot: Plot) {
         const boundingBoxes = plot.bounds || [];
 
         return {

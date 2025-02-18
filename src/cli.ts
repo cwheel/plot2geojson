@@ -30,6 +30,11 @@ const argv = yargs(hideBin(process.argv))
         describe: 'Render the GeoJSON with a line connecting each station',
         type: 'boolean',
     })
+    .option('debug', {
+        alias: 'd',
+        describe: 'Render the GeoJSON with a line connecting each station',
+        type: 'boolean',
+    })
     .demandCommand(1)
     .parseSync();
 
@@ -75,5 +80,9 @@ if (argv.analyze) {
         line: argv.line,
     };
 
-    console.log(JSON.stringify(geojsonFromPlot(plot, renderOptions), null, 2));
+    if (!argv.debug) {
+        console.log(
+            JSON.stringify(geojsonFromPlot(plot, renderOptions), null, 2)
+        );
+    }
 }

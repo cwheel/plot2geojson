@@ -25,7 +25,10 @@ type Plot = {
     bounds?: BoundingBox[];
     units?: Units;
 };
-type Context = { [key: string]: any };
+type Context = {
+    currentRootName?: string;
+    roots?: { [name: string]: Station };
+};
 
 type ParserCommand = {
     command: string;

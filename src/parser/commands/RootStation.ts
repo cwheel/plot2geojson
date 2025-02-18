@@ -10,11 +10,57 @@ class RootStationCommand {
         // Prefixed with a name command, remove it
         const stationName = args[3].substring(1);
 
-        stations.push(stationFromArgs(args));
+        for (let rootStation of stations) {
+            // If the last station in the root station is the same as the new station, this survey
+            // is a continuation of the last survey, don't make a new root station for it.
+            if (
+                rootStation.stations[rootStation.stations.length - 1].name ===
+                stationName
+            ) {
+                ctx.currentRootName = rootStation.name;
 
-        ctx.stations = ctx.stations || {};
-        ctx.stations[stationName] = stations[stations.length - 1];
-        ctx.currentStation = stationName;
+                return { stations };
+            }
+        }
+
+        const newStation = stationFromArgs(args);
+
+        if (ctx.currentRootName) {
+            const lastRoot = ctx.roots[ctx.currentRootName];
+
+            for (let i = 0; i < lastRoot.stations.length; i++) {
+                const station = lastRoot.stations[i];
+
+                // A hack to copy the walls from this root back into the existing survey if needed. It
+                // _appears_ that this is what Compass does for some reason
+                if (station.name === stationName) {
+                    lastRoot.stations[i].walls.left = Math.max(
+                        station.walls.left,
+                        newStation.walls.left
+                    );
+                    lastRoot.stations[i].walls.right = Math.max(
+                        station.walls.right,
+                        newStation.walls.right
+                    );
+                    lastRoot.stations[i].walls.up = Math.max(
+                        station.walls.up,
+                        newStation.walls.up
+                    );
+                    lastRoot.stations[i].walls.down = Math.max(
+                        station.walls.down,
+                        newStation.walls.down
+                    );
+
+                    return;
+                }
+            }
+        }
+
+        stations.push(newStation);
+
+        ctx.roots = ctx.roots || {};
+        ctx.roots[stationName] = stations[stations.length - 1];
+        ctx.currentRootName = stationName;
 
         return { stations };
     }
