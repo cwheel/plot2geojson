@@ -2,6 +2,7 @@ import { type Station, type Position } from '../parser/util/station.js';
 import { type Plot } from '../parser/parser.js';
 import { multiplyMatrices } from './util/matrix.js';
 import { metersToFeet } from './util/constants.js';
+import { sortPolygonPoints } from './util/geometry.js';
 
 type Polygon = {
     type: string;
@@ -162,17 +163,16 @@ const translationVector = (azimuth: number, distance: number): Position => {
 };
 
 const translateDirection = (
-    plot: Plot,
     angle: number,
     station: Station,
     distance: number
-): number[] => {
+): Position => {
     const translation = translationVector(angle, distance);
 
     const translatedEasting = station.position.easting + translation.easting;
     const translatedNorthing = station.position.northing + translation.northing;
 
-    return utmToLatLng(translatedEasting, translatedNorthing, plot);
+    return { northing: translatedNorthing, easting: translatedEasting };
 };
 
 // Compass very rarely puts in negative values for tunnel dimensions
@@ -216,41 +216,41 @@ const polygonBetweenStations = (
     const startingAzimuth = options.pretty ? lastAzimuth || azimuth : azimuth;
 
     const firstPoint = translateDirection(
-        plot,
         startingAzimuth,
         lastStation,
         -translateBy(lastStation.walls.right)
     );
 
     const secondPoint = translateDirection(
-        plot,
         startingAzimuth,
         lastStation,
         translateBy(lastStation.walls.left)
     );
 
     const thirdPoint = translateDirection(
-        plot,
         azimuth,
         station,
         translateBy(currentStation.walls.left)
     );
 
     const fourthPoint = translateDirection(
-        plot,
         azimuth,
         station,
         -translateBy(currentStation.walls.right)
     );
 
+    const sortedPoints = sortPolygonPoints([
+        firstPoint,
+        secondPoint,
+        thirdPoint,
+        fourthPoint,
+    ]).map((point) => utmToLatLng(point.easting, point.northing, plot));
+
     return {
         polygon: [
-            firstPoint,
-            secondPoint,
-            thirdPoint,
-            fourthPoint,
-            // Repeated to close the polygon
-            firstPoint,
+            ...sortedPoints,
+            // Close the polygon
+            sortedPoints[0],
         ],
         azimuth,
     };
