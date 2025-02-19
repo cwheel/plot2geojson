@@ -36,22 +36,16 @@ const geojsonFromPlot = (
 ) => {
     let polygons: Polygon[] = [];
 
-    const visibleStations = plot.stations.filter(
-        // If the station is excluded from plotting, skip it
-        (station) =>
-            !station.flags.ExcludePlotting && !station.flags.TotalExclusion
-    );
-
-    const allStations = plot.stations.reduce(
-        (all, root) => [root, ...root.stations, ...all],
-        []
-    );
-
-    visibleStations.forEach((rootStation: Station) => {
+    plot.stations.forEach((rootStation: Station) => {
         let lastAzimuth = null;
 
         for (let i = 0; i < rootStation.stations.length; i++) {
             const station = rootStation.stations[i];
+
+            // Skip stations that are excluded from plotting
+            if (station.flags.ExcludePlotting || station.flags.TotalExclusion) {
+                continue;
+            }
 
             // One station before this one
             const lastStation =
