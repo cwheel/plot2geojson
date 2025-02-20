@@ -104,7 +104,7 @@ const geojsonFromPlot = (
                 properties: {},
             },
             ...(options.line
-                ? visibleStations.map((root) => ({
+                ? plot.stations.map((root) => ({
                       type: 'Feature',
                       geometry: {
                           type: 'LineString',
@@ -126,12 +126,13 @@ const utmToLatLng = (
     plot: Plot
 ): LatLngPoint => {
     const unit = plot.units === 'feet' ? metersToFeet : 1;
+    const hemisphere = plot.utmZone > 0 && plot.utmZone <= 60 ? 'N' : 'S';
 
     const latlng = plot.datum.converter.convertUtmToLatLng(
         easting / unit,
         northing / unit,
         plot.utmZone,
-        'R' // UTM zone letter, this maybe needs to be dynamic?
+        hemisphere
     );
 
     // @ts-ignore: Once again, the types for utm-latlng are seemingly wrong
