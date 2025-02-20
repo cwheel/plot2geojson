@@ -1,6 +1,3 @@
-// @ts-ignore: This package doesn't have types and should be removed in general
-import splitSpacesExcludeQuotes from 'quoted-string-space-split';
-
 import DatumCommand, { type Datum } from './commands/Datum.js';
 import HeaderCommand from './commands/Header.js';
 import NameCommand from './commands/Name.js';
@@ -12,6 +9,7 @@ import BoundingBoxCommand from './commands/BoundingBox.js';
 
 import { type Station } from './util/station.js';
 import { type BoundingBox } from './commands/BoundingBox.js';
+import { splitStringWithQuotes } from './util/split.js';
 
 type Units = 'feet' | 'meters';
 type Plot = {
@@ -88,7 +86,7 @@ class Parser {
 
             // Remove the line command itself
             const rawArgs = line.substring(1);
-            const args = splitSpacesExcludeQuotes(rawArgs);
+            const args = splitStringWithQuotes(rawArgs);
 
             // The last argument is a CR, remove it
             if (args[args.length - 1] === '\r') {
