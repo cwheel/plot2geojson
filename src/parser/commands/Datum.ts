@@ -23,7 +23,7 @@ class DatumCommand {
 
         // See https://www.npmjs.com/package/utm-latlng for supported datums
         if (name === 'North American 1927') {
-            // @ts-ignore: UTM's constructor does accept one argument
+            // @ts-expect-error: UTM's constructor does accept one argument
             converter = new UTM('Clarke 1866');
         }
 

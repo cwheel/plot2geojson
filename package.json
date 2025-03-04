@@ -2,7 +2,8 @@
     "name": "plt2geojson",
     "version": "0.0.1",
     "description": "Convert Compass plot files (.plt) to GeoJSON",
-    "main": "index.js",
+    "main": "dist/index",
+    "types": "dist/index",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "prepare": "husky install",

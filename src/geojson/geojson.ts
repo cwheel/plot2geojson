@@ -135,7 +135,7 @@ const utmToLatLng = (
         hemisphere
     );
 
-    // @ts-ignore: Once again, the types for utm-latlng are seemingly wrong
+    // @ts-expect-error: Once again, the types for utm-latlng are seemingly wrong
     return [latlng.lng, latlng.lat];
 };
 
