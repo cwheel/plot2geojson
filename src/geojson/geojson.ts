@@ -21,8 +21,8 @@ type Polygon = {
 };
 
 type RenderOptions = {
-    pretty: boolean;
-    line: boolean;
+    pretty?: boolean;
+    line?: boolean;
 };
 
 type LatLngPoint = [number, number];
