@@ -5,7 +5,7 @@ const plt2geojson = (pltFile: string, options?: RenderOptions) => {
     const plot = parse(pltFile);
     const geoJson = geojsonFromPlot(plot, options);
 
-    return JSON.stringify(geoJson);
+    return geoJson;
 };
 
 export default plt2geojson;

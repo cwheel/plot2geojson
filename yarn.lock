@@ -5,6 +5,13 @@ __metadata:
   version: 8
   cacheKey: 10c0
 
+"@types/geojson@npm:^7946.0.16":
+  version: 7946.0.16
+  resolution: "@types/geojson@npm:7946.0.16"
+  checksum: 10c0/1ff24a288bd5860b766b073ead337d31d73bdc715e5b50a2cee5cb0af57a1ed02cc04ef295f5fa68dc40fe3e4f104dd31282b2b818a5ba3231bc1001ba084e3c
+  languageName: node
+  linkType: hard
+
 "@types/node@npm:^22.13.1":
   version: 22.13.9
   resolution: "@types/node@npm:22.13.9"
@@ -463,6 +470,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "plt2geojson@workspace:."
   dependencies:
+    "@types/geojson": "npm:^7946.0.16"
     "@types/node": "npm:^22.13.1"
     "@types/yargs": "npm:^17.0.33"
     husky: "npm:^9.1.7"

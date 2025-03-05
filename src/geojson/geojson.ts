@@ -4,25 +4,29 @@ import { multiplyMatrices } from './util/matrix.js';
 import { metersToFeet } from './util/constants.js';
 import { sortPolygonPoints } from './util/geometry.js';
 
-type Polygon = {
-    type: string;
-    coordinates: number[][][];
-    properties: {
-        name: string;
-        elevation: number;
-        penetration: number;
-        comment: string;
-        flags: {
-            ExcludeClosure: boolean;
-            ExcludeLength: boolean;
-            Splay: boolean;
-        };
+type PolygonProperties = {
+    name: string;
+    elevation: number;
+    penetration: number;
+    comment: string;
+    flags: {
+        ExcludeClosure: boolean;
+        ExcludeLength: boolean;
+        Splay: boolean;
     };
 };
 
 type RenderOptions = {
     pretty?: boolean;
     line?: boolean;
+};
+
+type PlotMetadata = {
+    boundingBox: {
+        min: LatLngPoint;
+        max: LatLngPoint;
+        approximateArea: number;
+    };
 };
 
 type LatLngPoint = [number, number];
@@ -33,8 +37,8 @@ const geojsonFromPlot = (
         pretty: false,
         line: false,
     }
-) => {
-    let polygons: Polygon[] = [];
+): GeoJSON.FeatureCollection & { metadata: PlotMetadata } => {
+    let features: GeoJSON.Feature<GeoJSON.Polygon, PolygonProperties>[] = [];
 
     plot.stations.forEach((rootStation: Station) => {
         let lastAzimuth = null;
@@ -72,9 +76,12 @@ const geojsonFromPlot = (
 
             lastAzimuth = azimuth;
 
-            polygons.push({
-                type: 'Polygon',
-                coordinates: [polygon],
+            features.push({
+                type: 'Feature',
+                geometry: {
+                    type: 'Polygon',
+                    coordinates: [polygon],
+                },
                 properties: {
                     name: station.name,
                     elevation: station.elevation,
@@ -92,28 +99,20 @@ const geojsonFromPlot = (
 
     const bounds = globalBoundingBox(plot);
 
+    const lines: GeoJSON.Feature<GeoJSON.LineString>[] = plot.stations.map(
+        (root) => ({
+            type: 'Feature',
+            geometry: {
+                type: 'LineString',
+                coordinates: lineForSurvey(root, plot),
+            },
+            properties: {},
+        })
+    );
+
     return {
         type: 'FeatureCollection',
-        features: [
-            {
-                type: 'Feature',
-                geometry: {
-                    type: 'GeometryCollection',
-                    geometries: polygons,
-                },
-                properties: {},
-            },
-            ...(options.line
-                ? plot.stations.map((root) => ({
-                      type: 'Feature',
-                      geometry: {
-                          type: 'LineString',
-                          coordinates: lineForSurvey(root, plot),
-                      },
-                      properties: {},
-                  }))
-                : []),
-        ],
+        features: [...features, ...(options.line ? lines : [])],
         metadata: {
             boundingBox: bounds,
         },
@@ -286,4 +285,4 @@ const globalBoundingBox = (
 };
 
 export default geojsonFromPlot;
-export type { RenderOptions };
+export type { RenderOptions, PlotMetadata, PolygonProperties };
