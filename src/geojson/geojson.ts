@@ -9,6 +9,7 @@ type PolygonProperties = {
     elevation: number;
     penetration: number;
     comment: string;
+    likelyEntrance: boolean;
     flags: {
         ExcludeClosure: boolean;
         ExcludeLength: boolean;
@@ -42,6 +43,9 @@ const geojsonFromPlot = (
 
     plot.stations.forEach((rootStation: Station) => {
         let lastAzimuth = null;
+
+        const minSurveyDepth =
+            plot.bounds[rootStation.name]?.minDepth ?? Number.MAX_SAFE_INTEGER;
 
         for (let i = 0; i < rootStation.stations.length; i++) {
             const station = rootStation.stations[i];
@@ -87,6 +91,10 @@ const geojsonFromPlot = (
                     elevation: station.elevation,
                     penetration: station.penetration,
                     comment: station.comment,
+                    // This is approxiomate at best, I don't think that the survey bounding box Compass emits always properly
+                    // captures when we're at the surface. This should be close enough for our needs, but isn't totally reliable.
+                    // It turns out that determining what station is an entrace is actually pretty tricky.
+                    likelyEntrance: i === 0 && minSurveyDepth === 0,
                     flags: {
                         ExcludeClosure: station.flags.ExcludeClosure,
                         ExcludeLength: station.flags.ExcludeLength,
@@ -284,7 +292,7 @@ const globalBoundingBox = (
     let eastingMin = Number.POSITIVE_INFINITY;
     let eastingMax = Number.NEGATIVE_INFINITY;
 
-    plot.bounds.forEach((boundingBox) => {
+    Object.values(plot.bounds).forEach((boundingBox) => {
         northingMin = Math.min(northingMin, boundingBox.northingMin);
         northingMax = Math.max(northingMax, boundingBox.northingMax);
         eastingMin = Math.min(eastingMin, boundingBox.eastingMin);

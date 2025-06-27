@@ -20,7 +20,7 @@ type Plot = {
     utmZone?: number;
     datum?: Datum;
     surveys?: Survey[];
-    bounds?: BoundingBox[];
+    bounds?: { [survey: string]: BoundingBox };
     units?: Units;
 };
 type Context = {
