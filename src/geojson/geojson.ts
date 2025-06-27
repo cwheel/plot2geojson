@@ -94,7 +94,7 @@ const geojsonFromPlot = (
                     // This is approxiomate at best, I don't think that the survey bounding box Compass emits always properly
                     // captures when we're at the surface. This should be close enough for our needs, but isn't totally reliable.
                     // It turns out that determining what station is an entrace is actually pretty tricky.
-                    likelyEntrance: i === 0 && minSurveyDepth === 0,
+                    likelyEntrance: i === 0 && minSurveyDepth >= 0,
                     flags: {
                         ExcludeClosure: station.flags.ExcludeClosure,
                         ExcludeLength: station.flags.ExcludeLength,
