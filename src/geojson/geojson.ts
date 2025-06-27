@@ -45,7 +45,7 @@ const geojsonFromPlot = (
         let lastAzimuth = null;
 
         const minSurveyDepth =
-            plot.bounds[rootStation.name]?.minDepth ?? Number.MAX_SAFE_INTEGER;
+            plot.bounds[rootStation.name]?.minDepth ?? Number.MIN_SAFE_INTEGER;
 
         for (let i = 0; i < rootStation.stations.length; i++) {
             const station = rootStation.stations[i];

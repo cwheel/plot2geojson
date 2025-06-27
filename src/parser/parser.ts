@@ -24,7 +24,10 @@ type Plot = {
     units?: Units;
 };
 type Context = {
+    // The root station we're appending survey data to
     currentRootName?: string;
+    // The root station (of the survey) that we're actually parsing
+    currentParsingRootName?: string;
     roots?: { [name: string]: Station };
 };
 

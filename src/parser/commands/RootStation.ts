@@ -10,6 +10,8 @@ class RootStationCommand {
         // Prefixed with a name command, remove it
         const stationName = args[3].substring(1);
 
+        ctx.currentParsingRootName = stationName;
+
         const newStation = stationFromArgs(args);
 
         for (let rootStation of stations) {

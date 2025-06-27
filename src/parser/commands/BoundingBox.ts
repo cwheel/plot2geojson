@@ -18,7 +18,7 @@ class BoundingBoxCommand {
         return {
             bounds: {
                 ...boundingBoxes,
-                [ctx.currentRootName]: {
+                [ctx.currentParsingRootName]: {
                     northingMin: parseFloat(args[0]),
                     northingMax: parseFloat(args[1]),
                     eastingMin: parseFloat(args[2]),
