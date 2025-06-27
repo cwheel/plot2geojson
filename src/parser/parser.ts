@@ -73,6 +73,10 @@ class Parser {
     }
 
     parseLine(line: string) {
+        if (line.length === 0) {
+            return;
+        }
+
         // Capitalize the command, sometimes Compass forgets (lol)
         const command = line[0].toUpperCase();
         if (Parser.ignoredCommands.includes(command) || command === '') {

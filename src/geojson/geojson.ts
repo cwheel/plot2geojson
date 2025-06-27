@@ -23,9 +23,9 @@ type RenderOptions = {
 
 type PlotMetadata = {
     boundingBox: {
-        min: LatLngPoint;
-        max: LatLngPoint;
-        approximateArea: number;
+        min?: LatLngPoint;
+        max?: LatLngPoint;
+        approximateArea?: number;
     };
 };
 
@@ -209,28 +209,43 @@ const polygonBetweenStations = (
     // If we're in pretty mode, plot the first two points with the last azimuth
     const startingAzimuth = options.pretty ? lastAzimuth || azimuth : azimuth;
 
+    // If we're in pretty mode, always render the walls as at least 1 unit away from the station
+    // so they don't show up as lines on the map.
+    const lastLeft = options.pretty
+        ? Math.max(lastStation.walls.left, 1)
+        : lastStation.walls.left;
+    const lastRight = options.pretty
+        ? Math.max(lastStation.walls.right, 1)
+        : lastStation.walls.right;
+    const currentLeft = options.pretty
+        ? Math.max(currentStation.walls.left, 1)
+        : currentStation.walls.left;
+    const currentRight = options.pretty
+        ? Math.max(currentStation.walls.right, 1)
+        : currentStation.walls.right;
+
     const firstPoint = translateDirection(
         startingAzimuth,
         lastStation,
-        -translateBy(lastStation.walls.right)
+        -translateBy(lastRight)
     );
 
     const secondPoint = translateDirection(
         startingAzimuth,
         lastStation,
-        translateBy(lastStation.walls.left)
+        translateBy(lastLeft)
     );
 
     const thirdPoint = translateDirection(
         azimuth,
         station,
-        translateBy(currentStation.walls.left)
+        translateBy(currentLeft)
     );
 
     const fourthPoint = translateDirection(
         azimuth,
         station,
-        -translateBy(currentStation.walls.right)
+        -translateBy(currentRight)
     );
 
     const sortedPoints = sortPolygonPoints([
@@ -259,7 +274,11 @@ const lineForSurvey = (root: Station, plot: Plot) => {
 
 const globalBoundingBox = (
     plot: Plot
-): { min: LatLngPoint; max: LatLngPoint; approximateArea: number } => {
+): { min?: LatLngPoint; max?: LatLngPoint; approximateArea?: number } => {
+    if (!plot.bounds) {
+        return {};
+    }
+
     let northingMin = Number.POSITIVE_INFINITY;
     let northingMax = Number.NEGATIVE_INFINITY;
     let eastingMin = Number.POSITIVE_INFINITY;

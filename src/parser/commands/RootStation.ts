@@ -15,6 +15,11 @@ class RootStationCommand {
         for (let rootStation of stations) {
             const terminalStation =
                 rootStation.stations[rootStation.stations.length - 1];
+
+            if (!terminalStation) {
+                continue;
+            }
+
             // If the last station in the root station is the same as the new station, this survey
             // is a continuation of the last survey, don't make a new root station for it.
             if (
